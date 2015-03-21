@@ -34,7 +34,13 @@ namespace CenterCLR.EmitLiveDemo
 				Type.EmptyTypes);
 
 			// Console.WriteLine(string) メソッドのメソッド定義を取得する
-			var writeLineMethod = typeof(Console).GetMethod("WriteLine", new[] { typeof(string) });
+			var writeLineMethod = typeof(Console).
+				GetMethod(
+				"WriteLine",
+				new[]
+				{
+					typeof(string)
+				});
 
 
 			var ilGenerator = methodBuilder.GetILGenerator();
