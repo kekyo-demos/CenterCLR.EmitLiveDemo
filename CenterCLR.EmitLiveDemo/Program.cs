@@ -14,8 +14,8 @@ namespace CenterCLR.EmitLiveDemo
 		{
 			var assemblyName = new AssemblyName("EmitLive");
 
-			var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-			var moduleBuilder = assemblyBuilder.DefineDynamicModule("EmitLiveModule");
+			var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
+			var moduleBuilder = assemblyBuilder.DefineDynamicModule("EmitLive.dll");
 
 			// public static class SampleClass { ... } のようなクラスを定義する
 			var typeBuilder = moduleBuilder.DefineType(
@@ -33,20 +33,30 @@ namespace CenterCLR.EmitLiveDemo
 				typeof (void),
 				Type.EmptyTypes);
 
-			// Console.WriteLine(string) メソッドのメソッド定義を取得する
+			// Console.WriteLine(string, object) メソッドのメソッド定義を取得する
 			var writeLineMethod = typeof(Console).
 				GetMethod(
 				"WriteLine",
 				new[]
 				{
-					typeof(string)
+					typeof(string),
+					typeof(object)
 				});
 
 
-			var ilGenerator = methodBuilder.GetILGenerator();
-			ilGenerator.Emit(OpCodes.Ldstr, "Hello Center CLR!");
-			ilGenerator.Emit(OpCodes.Call, writeLineMethod);
-			ilGenerator.Emit(OpCodes.Ret);
+			var ilg = methodBuilder.GetILGenerator();
+
+			ilg.Emit(OpCodes.Ldstr, "Hello Center CLR {0} !");
+
+			ilg.Emit(OpCodes.Ldc_I4, 1);
+			ilg.Emit(OpCodes.Ldc_I4, 2);
+			ilg.Emit(OpCodes.Add);
+
+			ilg.Emit(OpCodes.Box, typeof(int));
+
+			ilg.Emit(OpCodes.Call, writeLineMethod);
+
+			ilg.Emit(OpCodes.Ret);
 
 
 
@@ -71,6 +81,7 @@ namespace CenterCLR.EmitLiveDemo
 
 			// 実行
 			action();
+
 		}
 	}
 }
